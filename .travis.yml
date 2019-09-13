@@ -1,3 +1,4 @@
+language: generic 
 sudo: required
 services: 
   - docker
@@ -6,10 +7,18 @@ before_install:
   - docker build -t Shantanu299/multi-docker-fibonacciCalculator -f ./client/Dockerfile.dev ./client
 
 script:
-  - docker run Shantanu299/multi-docker-fibonacciCalculator npm test -- --coverage
+  - docker run -e CI=true Shantanu299/multi-docker-fibonacciCalculator npm test
 
 after_success:
   - docker build -t shantanu299/multi-client ./client
   - docker build -t shantanu299/multi-nginx ./nginx
   - docker build -t shantanu299/multi-server ./server
   - docker build -t shantanu299/multi-worker ./worker
+  #login to docker CLI
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin 
+  #take those images and push on docker hub
+  - docker push shantanu299/multi-client
+  - docker push shantanu299/multi-nginx
+  - docker push shantanu299/multi-server
+  - docker push shantanu299/multi-worker
+   
